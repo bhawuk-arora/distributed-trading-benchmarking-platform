@@ -210,7 +210,7 @@ docker-compose -f deployments/docker-compose.yml down
 ---
 ## Phase 4: Contestant Submission System & Docker Sandboxing
 
-> **Note**: Phase 4 implementation is complete. To test this specific phase, check out commit `phase-4-commit-hash` (updated after merge).
+> **Note**: Phase 4 implementation is complete. To test this specific phase, check out commit `425d956471d989ff665015a9d8e3d0bdd81a6d77`.
 
 This phase introduces a secure submission pipeline. Contestants can upload a Go source archive or a Git repo URL. The platform clones/saves it, builds it inside an isolated Docker builder container, and runs it inside a fully locked-down sandbox container with no network access.
 
