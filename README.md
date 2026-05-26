@@ -113,7 +113,31 @@ go test -bench="." -benchmem ./pkg/orderbook
 ---
 
 ## Phase 2: Concurrent Distributed Load Generator
-*(Documentation to be added in `phase-2` branch)*
+
+This phase introduces a highly concurrent HTTP load generator used to simulate high-frequency trading bot traffic against the Phase 1 matching engine.
+
+### How to Run & Verify (Phase 2)
+
+#### 1. Start the Matching Engine (Target)
+First, start the Phase 1 matching engine in a separate terminal window:
+```powershell
+go run ./cmd/matching-engine --port 8080
+```
+
+#### 2. Run the Load Generator
+In a new terminal window, execute the load generator to simulate traffic. You can specify the target TPS, run duration, and number of concurrent bots.
+
+```powershell
+go run ./cmd/load-generator -endpoint http://localhost:8080 -tps 1000 -duration 10s -bots 5
+```
+
+**Parameters:**
+* `-endpoint`: The target API URL (default: `http://localhost:8080`)
+* `-tps`: Total Target Transactions Per Second across all bots (default: `1000`)
+* `-duration`: The time duration to run the load test for (default: `10s`)
+* `-bots`: Number of parallel simulated trader bots (default: `10`)
+
+Once the run completes, it will output the total successful requests and the precise average client-side latency (Round-Trip Time).
 
 ---
 ## Phase 3: Metrics & Telemetry Pipeline
