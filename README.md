@@ -150,7 +150,7 @@ If you are viewing the codebase in the future and want to test exactly how it lo
 ---
 ## Phase 3: Metrics & Telemetry Pipeline
 
-> **Note**: Phase 3 implementation is complete. To test this specific phase, you can check out commit `phase-3` branch.
+> **Note**: Phase 3 implementation is complete. To test this specific phase, you can check out commit `9533889fb15b96f725bf8273958607f29c733f59`.
 
 This phase wires the full observability stack — **Prometheus**, **Grafana**, **TimescaleDB**, and **Redis** — into our existing matching engine and load generator. Every order match and HTTP round trip now emits real-time metrics viewable in a live Grafana dashboard.
 
