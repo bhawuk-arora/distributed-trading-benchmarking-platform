@@ -209,7 +209,50 @@ docker-compose -f deployments/docker-compose.yml down
 
 ---
 ## Phase 4: Contestant Submission System & Docker Sandboxing
-*(Documentation to be added in `phase-4` branch)*
+
+> **Note**: Phase 4 implementation is complete. To test this specific phase, check out commit `phase-4-commit-hash` (updated after merge).
+
+This phase introduces a secure submission pipeline. Contestants can upload a Go source archive or a Git repo URL. The platform clones/saves it, builds it inside an isolated Docker builder container, and runs it inside a fully locked-down sandbox container with no network access.
+
+### Security Constraints on Runner Containers
+| Constraint | Value |
+|---|---|
+| Network | `--network none` (no internet) |
+| Filesystem | `--read-only` |
+| Memory | `--memory=512m` |
+| CPU | `--cpus=1.0` |
+| Privileges | `--cap-drop=ALL`, `--security-opt=no-new-privileges` |
+| User | Runs as non-root `sandboxuser` |
+
+### API Reference (Phase 4)
+- `POST /api/v1/submissions` — Upload source `.zip` / `.tar.gz` (multipart, `X-Contestant-ID` header required)
+- `POST /api/v1/submissions/git` — Submit a public Git repository URL
+- `GET /api/v1/submissions/{id}` — Poll the status of a submission (`PENDING`, `COMPILING`, `SUCCESS`, `FAILED`)
+- `GET /health` — Health check
+
+### How to Run & Verify (Phase 4)
+
+#### 1. Start the Submission Service
+```powershell
+go run ./cmd/submission-service --port 9090
+```
+
+#### 2. Submit a Git Repo
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:9090/api/v1/submissions/git `
+  -ContentType "application/json" `
+  -Body '{"contestant_id":"team-alpha","git_url":"https://github.com/your/engine-repo"}'
+```
+
+#### 3. Poll Build Status
+```powershell
+Invoke-RestMethod -Uri http://localhost:9090/api/v1/submissions/{id}
+```
+
+#### How to test this specific Phase
+1. `git checkout <phase-4-commit-hash>` (will be updated once merged)
+2. Run the service using the instructions above.
+3. `git checkout main` to return.
 
 ---
 ## Phase 5: Kubernetes Orchestration & Fleet Autoscaling
