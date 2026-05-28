@@ -254,13 +254,41 @@ Invoke-RestMethod -Uri http://localhost:9090/api/v1/submissions/{id}
 2. Run the service using the instructions above.
 3. `git checkout main` to return.
 
----
 ## Phase 5: Kubernetes Orchestration & Fleet Autoscaling
-*(Documentation to be added in `phase-5` branch)*
+
+> **Note**: Phase 5 implementation is complete. To inspect files, check out commit `13c7a2d82aa13a1d20564d1ee09d91a291596425`.
+
+This phase adds cloud-native Kubernetes orchestration and fleet autoscaling to the benchmarking platform:
+- **Custom CRD `BenchmarkRun`** defines the custom resource schema for runs.
+- **Go Kubernetes Controller** using `sigs.k8s.io/controller-runtime` reconciles CRDs, dynamically spinning up runner namespaces, NetworkPolicies, and ResourceQuotas.
+- **Helm Charts** package the submission-service, controller, databases, and load-generator.
+- **KEDA ScaledObject** configuration automatically scales out load-generator bot fleets based on Redis TPS metrics.
 
 ---
 ## Phase 6: Real-time Leaderboard Dashboard
-*(Documentation to be added in `phase-6` branch)*
+
+This phase implements a real-time, low-latency scoring leaderboard and glassmorphic dashboard:
+- **Redis ZSET & Hashes** calculate and persist real-time standings using the scoring formula: $\text{Score} = \text{TPS} \times \frac{1000}{\text{p99\_latency\_ms}}$.
+- **WebSocket Broadcast Hub** streams new run completions to connected browsers.
+- **Vibrant Neon Web Interface** renders real-time standings and dynamic latency vs. TPS charts using Chart.js.
+
+### How to Run & Verify (Phase 6)
+1. **Start the Database stack**:
+   ```powershell
+   docker-compose -f deployments/docker-compose.yml up -d
+   ```
+2. **Start the Leaderboard Service**:
+   ```powershell
+   go run ./cmd/leaderboard-service --port 8282
+   ```
+3. **Open the Dashboard**:
+   Navigate to **http://localhost:8282** in your browser.
+4. **Trigger a mock run** to watch it stream:
+   ```powershell
+   Invoke-RestMethod -Method Post -Uri http://localhost:8282/api/v1/debug/run `
+     -ContentType "application/json" `
+     -Body '{"contestant_id":"team-lambda","submission_id":"run-001","tps":22500,"p99_latency_ms":0.65,"success_rate":100.0}'
+   ```
 
 ---
 ## Phase 7: Event-Driven Ingestion Bus (Kafka/Redpanda)
