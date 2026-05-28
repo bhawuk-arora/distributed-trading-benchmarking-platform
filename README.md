@@ -290,10 +290,29 @@ This phase implements a real-time, low-latency scoring leaderboard and glassmorp
      -Body '{"contestant_id":"team-lambda","submission_id":"run-001","tps":22500,"p99_latency_ms":0.65,"success_rate":100.0}'
    ```
 
----
 ## Phase 7: Event-Driven Ingestion Bus (Kafka/Redpanda)
-*(Documentation to be added in `phase-7` branch)*
+
+> **Note**: Phase 7 implementation is complete. To inspect files, check out commit `0e2cfc359407af44c372a7e202cb98e7600b9a75`.
+
+This phase decouples telemetry ingestion by integrating a high-throughput, fault-tolerant messaging bus:
+- **Redpanda Integration**: Configured a single-broker Redpanda instance (fully Kafka API compatible) in `deployments/docker-compose.yml`.
+- **Asynchronous Producer**: [`pkg/queue/producer.go`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/pkg/queue/producer.go) implements low-overhead, asynchronous, batched writes to the `run.telemetry` topic using `segmentio/kafka-go`.
+- **Consumer Group Listener**: [`pkg/queue/consumer.go`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/pkg/queue/consumer.go) handles parallel partition message streaming and triggers handlers to record stats.
+- **Protobuf Telemetry Schema**: Schema defined in [`proto/events.proto`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/proto/events.proto) with pre-generated Go struct models in [`pkg/queue/messages.go`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/pkg/queue/messages.go).
 
 ---
 ## Phase 8: Low-latency Optimization & Kernel Tuning
-*(Documentation to be added in `phase-8` branch)*
+
+> **Note**: Phase 8 implementation is complete. To inspect files, check out commit `0e2cfc359407af44c372a7e202cb98e7600b9a75`.
+
+This phase maximizes order matching speed and establishes high-performance low-level systems:
+- **eBPF Socket Latency Probe**: [`ebpf/socket_latency.c`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/ebpf/socket_latency.c) compiles C-based kernel hooks to measure TCP handshake RTTs. [`ebpf/main.go`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/ebpf/main.go) consumes the ring buffer and provides a user-space socket timing fallback for Windows hosts.
+- **Kernel Parameter Tuning Script**: [`scripts/sysctl-tune.sh`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/scripts/sysctl-tune.sh) optimizes the Linux socket backlogs, disables swap, configures TCP buffers, and enables low-latency TCP modes.
+- **Zero-Allocation FIX Parser**: [`pkg/fix/parser.go`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/pkg/fix/parser.go) parses tag-value FIX strings without heap allocations in the hot path.
+- **FIX TCP Session Server**: [`pkg/fix/session.go`](file:///c:/Users/bhawu/Documents/GitHub/distributed-trading-benchmarking-platform/pkg/fix/session.go) listens on port `10443` supporting standard FIX 4.2 logon handshakes, heartbeats, and order execution reports.
+
+### How to Run & Verify FIX (Phase 8)
+1. Run the Go unit tests to verify the FIX session and parser handshake:
+   ```powershell
+   go test -v ./pkg/fix/...
+   ```
