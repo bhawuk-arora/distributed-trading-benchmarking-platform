@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "matching-platform.fullname" . }}-leaderboard
+  labels:
+    app: leaderboard
+spec:
+  replicas: {{ .Values.leaderboardService.replicaCount }}
+  selector:
+    matchLabels:
+      app: leaderboard
+  template:
+    metadata:
+      labels:
+        app: leaderboard
+    spec:
+      containers:
+        - name: leaderboard
+          image: "{{ .Values.image.repository }}/leaderboard-service:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.leaderboardService.port }}
+              protocol: TCP
+          args:
+            - "--port"
+            - "{{ .Values.leaderboardService.port }}"
+            - "--redis-addr"
+            - "{{ .Values.redis.host }}:{{ .Values.redis.port }}"
+          resources:
+            {{- toYaml .Values.leaderboardService.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "matching-platform.fullname" . }}-leaderboard
+  labels:
+    app: leaderboard
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.leaderboardService.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: leaderboard
