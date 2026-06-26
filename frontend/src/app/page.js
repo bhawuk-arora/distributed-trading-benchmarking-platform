@@ -22,9 +22,7 @@ export default function Dashboard() {
   // State variables
   const [leaderboard, setLeaderboard] = useState([]);
   const [connected, setConnected] = useState(false);
-  const [activityFeed, setActivityFeed] = useState([
-    { id: 1, time: new Date().toLocaleTimeString(), sender: "System", msg: "Subscribing to active benchmark events...", type: "system" }
-  ]);
+  const [activityFeed, setActivityFeed] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("standings"); // "standings" | "submit" | "debug"
   
@@ -137,6 +135,15 @@ export default function Dashboard() {
   // Initial load
   useEffect(() => {
     fetchLeaderboard();
+    setActivityFeed([
+      { 
+        id: 1, 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }), 
+        sender: "System", 
+        msg: "Subscribing to active benchmark events...", 
+        type: "system" 
+      }
+    ]);
   }, [fetchLeaderboard]);
 
   // Filter leaderboard
