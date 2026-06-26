@@ -4,6 +4,36 @@ A production-grade, cloud-native benchmarking and hosting platform designed to t
 
 ---
 
+## Project Overview & Achievements (What We Did)
+
+We have successfully refined, compiled, and verified the entire codebase, clean-deleted development branches, and set up a production-ready, cost-effective infrastructure layout for cloud deployment:
+
+### 1. Codebase Verification & Compilation
+* **100% Passing Tests**: Successfully ran the unit and integration tests across the codebase, confirming the reliability of the FIFO matching engine, the zero-allocation FIX parser, and the HTTP/WS session handlers.
+* **Service Builds Verified**: Built and compiled all five key binaries without errors:
+  * `matching-engine` (Port `8080`)
+  * `leaderboard-service` (Port `8282` & Static Dashboard Web Interface)
+  * `submission-service` (Port `9090` / `9091` & Docker Executor Sandbox)
+  * `telemetry-aggregator` (Metrics pipeline consumer)
+  * `load-generator` (Concurrent bot simulator)
+
+### 2. Infrastructure Bug Fixes
+* **Redpanda Container Restored**: Resolved a container crash in the local database stack by updating the deprecated `--one-node` and `--overprovisioned` startup flags to `--mode dev-container` in `deployments/docker-compose.yml`.
+
+### 3. Production IaC (Terraform for AWS EKS)
+* Created a minimal, production-ready AWS EKS deployment configuration under `deploy/terraform/` that:
+  * Automatically sets up an isolated VPC (`10.0.0.0/16`) to avoid conflicts with other projects.
+  * Employs a **single NAT Gateway** to significantly reduce AWS hourly charges.
+  * Launches a minimal 2-node `t3.medium` EKS managed node group.
+  * Provisions cost-efficient Graviton instances for caching (`cache.t4g.micro` Redis) and storage (`db.t4g.micro` PostgreSQL) without multi-AZ replication to keep hosting costs extremely low.
+
+### 4. Observability & Subdomain Routing Ready
+* The platform is configured to host public dashboard interfaces (Grafana & Leaderboard Standings) via subdomains. Caddy/Nginx reverse proxy routing rules can direct ingress traffic to:
+  * `grafana.yourdomain.com` -> Prometheus Metrics & Latency Dashboards (port `3000`)
+  * `leaderboard.yourdomain.com` -> Glassmorphic Real-time Standings (port `8282`)
+
+---
+
 ## Git Workflow & Branching Strategy
 
 To manage the complexity of this project, we follow a strict phase-wise branching strategy:
