@@ -60,7 +60,7 @@ leaderboardService:
       memory: 128Mi
 
 ingress:
-  enabled: true
+  enabled: false
   className: "nginx"
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -83,3 +83,30 @@ ingress:
       hosts:
         - dash.yourdomain.com
         - grafana.yourdomain.com
+
+gateway:
+  enabled: true
+  className: "aws-gateway-controller"
+  annotations: {}
+  listeners:
+    - name: dashboard
+      port: 80
+      protocol: HTTP
+      hostname: "dash.yourdomain.com"
+    - name: grafana
+      port: 80
+      protocol: HTTP
+      hostname: "grafana.yourdomain.com"
+  routes:
+    - hostname: "dash.yourdomain.com"
+      path: /
+      serviceName: leaderboard
+      servicePort: 8282
+    - hostname: "grafana.yourdomain.com"
+      path: /
+      serviceName: prometheus-grafana
+      servicePort: 80
+
+podAnnotations: {}
+  # Example for enabling Istio service mesh sidecar injection:
+  # sidecar.istio.io/inject: "true"

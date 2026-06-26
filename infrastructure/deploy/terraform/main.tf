@@ -175,3 +175,51 @@ resource "aws_elasticache_cluster" "redis" {
     Name = "${var.project_name}-redis"
   }
 }
+
+# -------------------------------------------------------------
+# AWS ECR Repositories for Docker Images
+# -------------------------------------------------------------
+resource "aws_ecr_repository" "matching_engine" {
+  name                 = "${var.project_name}-matching-engine"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "leaderboard_service" {
+  name                 = "${var.project_name}-leaderboard-service"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "submission_service" {
+  name                 = "${var.project_name}-submission-service"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "load_generator" {
+  name                 = "${var.project_name}-load-generator"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "telemetry_aggregator" {
+  name                 = "${var.project_name}-telemetry-aggregator"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}

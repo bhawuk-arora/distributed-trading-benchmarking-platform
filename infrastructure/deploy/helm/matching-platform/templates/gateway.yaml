@@ -1,0 +1,29 @@
+{{- if .Values.gateway.enabled -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "matching-platform.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  {{- with .Values.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  gatewayClassName: {{ .Values.gateway.className | default "aws-gateway-controller" }}
+  listeners:
+    {{- range .Values.gateway.listeners }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol }}
+      {{- if .hostname }}
+      hostname: {{ .hostname | quote }}
+      {{- end }}
+      {{- if .tls }}
+      tls:
+        {{- toYaml .tls | nindent 8 }}
+      {{- end }}
+      allowedRoutes:
+        namespaces:
+          from: Same
+    {{- end }}
+{{- end }}

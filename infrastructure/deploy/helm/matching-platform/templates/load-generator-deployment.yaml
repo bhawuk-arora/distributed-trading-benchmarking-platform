@@ -11,6 +11,10 @@ spec:
       app: load-generator
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         app: load-generator
         role: load-generator
