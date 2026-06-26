@@ -35,3 +35,51 @@ redis:
 timescaledb:
   host: "timescaledb.default.svc.cluster.local"
   port: 5432
+
+matchingEngine:
+  port: 8080
+  telemetryPort: 2112
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+leaderboardService:
+  port: 8282
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: dash.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: leaderboard
+          servicePort: 8282
+    - host: grafana.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: prometheus-grafana
+          servicePort: 80
+  tls:
+    - secretName: platform-tls-secret
+      hosts:
+        - dash.yourdomain.com
+        - grafana.yourdomain.com

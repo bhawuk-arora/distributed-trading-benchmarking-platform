@@ -7,13 +7,13 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket         = "trading-platform-tfstate-bucket"
-    key            = "eks/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "trading-platform-tflocks"
-    encrypt        = true
-  }
+  # backend "s3" {
+  #   bucket         = "trading-platform-tfstate-bucket"
+  #   key            = "eks/terraform.tfstate"
+  #   region         = "us-east-1"
+  #   dynamodb_table = "trading-platform-tflocks"
+  #   encrypt        = true
+  # }
 }
 
 provider "aws" {
