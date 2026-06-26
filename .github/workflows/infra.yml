@@ -1,12 +1,7 @@
 name: "Infrastructure Pipeline"
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "deploy/terraform/**"
-      - ".github/workflows/infra.yml"
+  workflow_dispatch:
 
 jobs:
   terraform:
@@ -15,7 +10,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: deploy/terraform
+        working-directory: infrastructure/deploy/terraform
 
     steps:
       - name: Checkout Code
